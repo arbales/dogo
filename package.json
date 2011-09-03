@@ -1,0 +1,12 @@
+{
+  "name": "dogo",
+  "version": "0.0.1",
+  "dependencies": {
+    "express": "latest",
+    "redis-url": "latest",
+    "connect": "latest",
+    "everyauth": "latest",
+    "underscore": "latest",
+    "underscore.string": "latest"   
+  }
+}
