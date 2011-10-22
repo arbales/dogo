@@ -2,11 +2,16 @@
   "name": "dogo",
   "version": "0.0.1",
   "dependencies": {
-    "express": "latest",
+    "express": "latest",  
+    "redis": "latest",
     "redis-url": "latest",
     "connect": "latest",
     "everyauth": "latest",
     "underscore": "latest",
-    "underscore.string": "latest"   
+    "underscore.string": "latest",
+    "coffee-script": ">= 1.1.1",
+    "jade": ">= 0.12.1",
+    "request": "latest",
+    "stitch": "latest"
   }
 }

@@ -1,0 +1,25 @@
+html {
+  background-color: #FFF0CE;
+  min-width: 800px;
+  min-height: 800px;
+}
+html, body {
+  font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;  
+}                                                                              
+
+h1 {
+  font-size: 96px;
+  text-align: center;
+  margin: 2ex;      
+  color: rgba(0,0,0,.75);
+  letter-spacing: -3px; 
+  text-shadow:#000 0 -1px 0;
+}
+
+.serif {
+  font-weight: lighter;
+}
+
+.italic {
+  font-style: italic;
+}         
