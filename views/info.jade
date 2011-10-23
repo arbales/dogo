@@ -2,8 +2,10 @@
   .content
     .page-header
       h1                      
-        Shortcut 
-        a(href="/"+code)= code
+        if title
+          a(href="/"+code)= title
+        else
+          a(href="/"+code)= code
     .row            
       .span8
         table
@@ -19,9 +21,19 @@
               td Visits
               td= hits
             tr
+              td Title
+              td= title
+            tr
+              td Description
+              td= description
+            tr
               td Link
-              td= code
-
+              td
+                a(href="/"+code)=code
+            tr
+              td JSON Link
+              td
+                a(href="/"+code+".json")=code + ".json"
   footer
     p
       Copyright &copy; 2011, Do.

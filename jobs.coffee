@@ -1,35 +1,31 @@
 qs = require('qs')
 request = require 'request'
-kue = require('kue')    
+kue = require('kue')
 jsdom = require('jsdom').jsdom
 jobs = kue.createQueue()
-redis = require('redis-url').createClient process.env.REDISTOGO_URL 
+redis = require('redis-url').createClient process.env.REDISTOGO_URL
 _         = require 'underscore'
-_.mixin     require 'underscore.string' 
+_.mixin     require 'underscore.string'
 
-jobs.process 'fetch', (job, done) ->     
-  console.log job.data.url
+jobs.process 'fetch', 20, (job, done) ->
   request {uri: job.data.url}, (error, response, body) ->
-    #console.log response.body
-    #if response.body
-    #  dom =  jsdom body, null, { 
-    #          FetchExternalResources: false,
-    #          ProcessExternalResources: false,
-    #          MutationEvents: false,
-    #          QuerySelector: false
-    #        }
-    #  console.log dom
-    #  done()
-    console.log body.match(/<title>(.*?)<\/title>/)[1]
+    #if title = body.match(/<title>(.*?)<\/title>/)[1]
+    try
+      dom = jsdom body, null, 
+        features:
+          FetchExternalResources: no
+          ProcessExternalResources: no
+          MutationEvents: off
+          QuerySelector: on
+      window = dom.createWindow()
+
+      if dom.title
+        redis.hset job.data.code, 'title', dom.title
+      if description = window.document.querySelector('meta[name=description]')?['content']
+        redis.hset job.data.code, 'description', description
+      done()
+    catch err
+      done(err)
   true
 
 kue.app.listen 5001
-
-  #redis.hgetall(code, (err, record)->
-  #  if err
-  #    response.render 'error.jade'
-  #  else if record.private is no or authenticate(request, response)    
-  #    response.redirect record.url
-  #    redis.hset code, 'hits', record.hits + 1
-  #)
-  
