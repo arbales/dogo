@@ -12,6 +12,10 @@
     "coffee-script": ">= 1.1.1",
     "jade": ">= 0.12.1",
     "request": "latest",
-    "stitch": "latest"
+    "stitch": "latest",
+    "kue": "latest",     
+    "qs": "latest",
+    "jsdom": "latest",
+    "superagent": "latest"
   }
 }

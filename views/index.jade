@@ -1,1 +1,28 @@
-h1 Greedo
+.container
+  .content
+    //.page-header
+    //  a.btn.info(href='/auth/google') Sign in with Google Apps     
+    .page-header
+      h2 Create a Shortcut
+    .row
+      .span14
+        form(action='/shorten', method='post')
+          fieldset
+            .clearfix
+              label Destination
+              .input
+                input.span8(type='text', name='url', placeholder='http://salesforce.com/products/do')
+            .clearfix
+              label Privacy Options         
+              .input       
+                ul.inputs-list
+                  li
+                    label
+                      input(type='checkbox', name='private')
+                      span &nbsp;&nbsp;Require Google Apps Authentication
+          .actions
+            button.btn.primary Shorten URL       
+
+  footer
+    p
+      Copyright &copy; 2011, Do.

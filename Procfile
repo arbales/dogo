@@ -1,1 +1,2 @@
-web: coffee index.coffee
+web: supervisor index.coffee
+queue: supervisor jobs.coffee

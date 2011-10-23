@@ -1,0 +1,27 @@
+.container
+  .content
+    .page-header
+      h1                      
+        Shortcut 
+        a(href="/"+code)= code
+    .row            
+      .span8
+        table
+          tbody
+            tr
+              td Destination
+              td
+                a(href=url)=url
+            tr
+              td Creator
+              td= creator
+            tr
+              td Visits
+              td= hits
+            tr
+              td Link
+              td= code
+
+  footer
+    p
+      Copyright &copy; 2011, Do.

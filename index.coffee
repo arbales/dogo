@@ -5,7 +5,8 @@ everyauth = require 'everyauth'
 connect   = require 'connect'                
 stitch    = require 'stitch'
 _         = require 'underscore'
-_.mixin     require 'underscore.string'      
+_.mixin     require 'underscore.string'  
+jobs       = require('kue').createQueue()
 # db        = require('Redback')(redis)
 
 Dogo.Utils = require './utils'
@@ -16,9 +17,15 @@ everyauth.google
   .appId('300861864070.apps.googleusercontent.com')
   .appSecret('n89AsWS21QV5mH5xQGBFrbvE')
   .scope('https://www.google.com/m8/feeds') # What you want access to
-  .myHostname('http://localhost:3000')
+  ##.loginView('login')  
   .findOrCreateUser((session, accessToken, accessTokenExtra, googleUserMetadata) ->
-    if _.endsWith(googleUserMetadata.id, "@do.com") then googleUserMetadata else @Promise().fail("The account #{googleUserMetadata.id} is not authorized to login.")
+    if _.endsWith(googleUserMetadata.id, "@do.com")
+      #promise.fulfill googleUserMetadata
+      googleUserMetadata
+    else                
+      "Failure"
+    #promise.fail("The account #{googleUserMetadata.id} is not authorized to login.")
+    #promise
   )
   .redirectPath('/')   
   
@@ -38,20 +45,26 @@ app.use express.compiler
   src: __dirname + '/client', 
   dest: __dirname + '/public',
   enable: ['coffeescript']
+ 
   
 requireAuth = (request, response, next) ->
   if Dogo.user = request?.session?.auth?.userId
     next()
   else  
     response.redirect '/auth/google'
+            
+authenticated = (request, response) ->
+  authed = request?.session?.auth?.userId
 
 authenticate = (request, response) ->
-  user = request?.session?.auth?.userId
-  unless user
-    response.redirect('/auth/google')
-    return false
-  user
+  authed = authenticated(request, response)
+  if not authed            
+    request.session['redirectPath'] = "/test"
+    response.redirect '/auth/google'
+  authed          
+  
     
+      
 package = stitch.createPackage
   paths: ["#{__dirname}/client"]          
   
@@ -59,10 +72,25 @@ app.get '/package.js', package.createServer()
     
 app.get '/authed?', (request, response) ->
   console.log request?.session?.auth?.userId
-  response.send "0"   
+  response.send request?.session?.auth?.userId   
   
 app.get '/', (request, response) ->
-  response.render 'index.jade'  
+  response.render 'index.jade' 
+  
+app.get '/info/:code', (request, response) ->
+  code = request.params.code   
+  redis.hgetall(code, (err, record)->
+    if err
+      response.render 'error.jade'
+    else if record.private is no or authenticate(request, response)    
+      response.render 'info.jade', locals:
+        url: record.url        
+        creator: record.creator
+        hits: record.hits
+        code: code
+        private: record.private
+  )    
+   
   
 app.get '/:code', (request, response) ->
   code = request.params.code   
@@ -72,33 +100,43 @@ app.get '/:code', (request, response) ->
     else if record.private is no or authenticate(request, response)    
       response.redirect record.url
       redis.hset code, 'hits', record.hits + 1
-  )      
+  )   
 
-app.get '/shorten/:url', requireAuth, (request, response) ->
-  trys = 0   
-  saved = no                  
+app.post '/shorten', requireAuth, (request, response) ->  
+  url = Dogo.Utils.normalizeLink(request.body.url)
+  code = false
+  saved = no       
+  length = 3
   destination =
     hits: 0
     creator: Dogo.user 
-    private: request.params.private || false
-
-  until saved or trys > 10
-    code = Dogo.Utils.randomString(3)
-    if saved = redis.hsetnx(code, 'url', Dogo.Utils.normalizeLink(request.params.url))
-        redis.hmset code, destination                         
-    trys++         
+    private: request.body.private == 'on'
+  if not request.body.url
+    response.redirect '/'
+    return false
     
-  response.send "Success in the cloud. http://go.do/#{code}"          
-  
+  persist = (length) -> 
+    trys = 0      
+    until saved or trys > 10    
+      code = Dogo.Utils.randomString(length)
+      if saved = redis.hsetnx(code, 'url', url)
+          redis.hmset code, destination                         
+      trys++
 
-redis.set('foo', 'bar');
+  until saved
+    persist(length)
+    length++     
 
-redis.get 'foo', (err, value) ->
-  console.log('foo is: ' + value)   
-
+  jobs.create('fetch',{
+    url: url
+    code: code         
+  }).save()
+   
+  response.redirect "/info/#{code}"
       
 port = process.env.PORT || 3000
-everyauth.helpExpress(app)
+everyauth.helpExpress(app)       
+
 app.listen port, ->
   console.log("Listening on " + port) 
   
