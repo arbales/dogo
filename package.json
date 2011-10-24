@@ -1,6 +1,7 @@
 {
   "name": "dogo",
-  "version": "0.0.1",
+  "version": "0.0.1",  
+  "main": "app.coffee",
   "dependencies": {
     "express": "latest",  
     "redis": "latest",
@@ -15,7 +16,6 @@
     "stitch": "latest",
     "kue": "latest",     
     "qs": "latest",
-    "jsdom": "latest",
-    "superagent": "latest"
+    "jsdom": "latest",  
   }
 }

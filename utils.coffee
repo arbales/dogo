@@ -8,7 +8,7 @@ module.exports =
       num = Math.floor (Math.random() * characters.length)
       random += characters.substring(num, num + 1)    
     random   
-  
-  normalizeLink: (content) ->
+   
+  normalizeLink: (content, prefix="") ->
     content.replace LINK_DETECTION_REGEX, (url) ->
-      address = if /[a-z]+:\/\//.test url then url else "http://#{url}"
+      address = if /[a-z]+:\/\//.test url then url else "http://#{prefix}#{url}"

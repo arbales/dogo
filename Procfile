@@ -1,2 +1,2 @@
-web: supervisor index.coffee
+web: supervisor app.coffee
 queue: supervisor jobs.coffee
