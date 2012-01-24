@@ -14,7 +14,7 @@ everyauth.debug = true
 
 everyauth.google
   .appId('300861864070.apps.googleusercontent.com')
-  .appSecret('n89AsWS21QV5mH5xQGBFrbvE')
+  .appSecret('n89AsWS21QV5mH5xQGBFrbvE') # DANGER: Regen when this isn't a toy.
   .scope('https://www.google.com/m8/feeds') # What you want access to
   .findOrCreateUser((session, accessToken, accessTokenExtra, googleUserMetadata) ->
     if _.endsWith(googleUserMetadata.id, "@do.com")
@@ -32,6 +32,7 @@ exports.app = app = express.createServer(
 
 app.set 'views', __dirname + '/views'
 app.use express.static(__dirname + '/public')
+# DANGER: Use actually secret session secret when this isn't a toy.
 app.use express.session({secret: 'dsafsdfasdf', store: new RedisStore(redis)})
 app.use express.methodOverride()
 app.use everyauth.middleware()
@@ -54,7 +55,6 @@ authenticated = (request, response) ->
 authenticate = (request, response) ->
   authed = authenticated(request, response)
   if not authed
-    # request.session['redirectPath'] = "/test"
     response.redirect '/auth/google'
   authed
 
@@ -118,7 +118,7 @@ app.post '/shorten', requireAuth, (request, response) ->
 
   persist = (length) ->
     trys = 0
-    until saved or trys > 10
+    until saved or trys > 10 # Bah. No.
       code = Dogo.Utils.randomString(length)
       if saved = redis.hsetnx(code, 'url', url)
           redis.hmset code, destination
